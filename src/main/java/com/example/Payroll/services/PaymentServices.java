@@ -2,6 +2,7 @@ package com.example.Payroll.services;
 
 import com.example.Payroll.entities.Payment;
 import com.example.Payroll.entities.Worker;
+import com.example.Payroll.feignclients.WorkerFeignClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,14 +14,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 public class PaymentServices {
-    @Value("${Payroll.host}")
-    private  String Host;
 
-    private final RestTemplate restTemplate;
+    private final WorkerFeignClient workerFeignClient;
      public Payment getPayment(long workId, int days){
-         Map<String,String>  uriVariables = new HashMap<>();
-         uriVariables.put("id",""+workId);
-         Worker woker = restTemplate.getForObject(Host + "/workers/{id}",Worker.class,uriVariables);
+         Worker woker = workerFeignClient.findById(workId).getBody();  //getForObject(Host + "/workers/{id}",Worker.class,uriVariables);
          return new Payment(woker.getName(), woker.getDailyIncome(), days);
      }
 
